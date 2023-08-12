@@ -9,11 +9,23 @@ on:
 jobs:
   pull-request-testing:
     runs-on: ubuntu-latest
-    container:
-      image: kirschbaumdevelopment/laravel-test-runner:7.4
+    # container:
+    #   image: kirschbaumdevelopment/laravel-test-runner:7.4
 
     steps:
-      - uses: actions/checkout@v2
+      # - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.3
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_sqlite
+          tools: composer:v2
+          coverage: pcov
+
+      - uses: ramsey/composer-install@v2
 
       - name: Validate composer.json and composer.lock
         working-directory: project
@@ -42,8 +54,9 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=-1 --coverage-clover coverage.xml
+        # run: XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=-1 --coverage-clover coverage.xml
         # run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-html report/
+        run: php artisan test --coverage --coverage-clover storage/coverage/coverage.xml
 
       # - name: Upload reports to codecov
       #   run: |
@@ -53,4 +66,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
+          files: ./storage/coverage/coverage.xml
