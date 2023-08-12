@@ -10,7 +10,7 @@ jobs:
   pull-request-testing:
     runs-on: ubuntu-latest
     container:
-      image: kirschbaumdevelopment/laravel-test-runner:7.3
+      image: kirschbaumdevelopment/laravel-test-runner:7.4
 
     steps:
       - uses: actions/checkout@v2
@@ -42,8 +42,8 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        # run: XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=-1 --coverage-clover coverage.xml
-        run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-html report/
+        run: XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=-1 --coverage-clover coverage.xml
+        # run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-html report/
 
       - name: Upload reports to codecov
         run: |
