@@ -1,0 +1,52 @@
+name: Pull Request Testing
+
+on:
+  pull_request:
+    branches: [ master, develop, staging ]
+
+  workflow_dispatch:
+
+jobs:
+  pull-request-testing:
+    runs-on: ubuntu-latest
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:7.4
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate composer.json and composer.lock
+        working-directory: project
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Install Dependencies
+        working-directory: project
+        run: composer install --no-ansi --no-interaction --no-progress --no-scripts --optimize-autoloader
+
+      - name: Directory Permissions
+        working-directory: project
+        run: chmod -R 777 storage
+
+      - name: Generating Application Key
+        working-directory: project
+        run: php artisan key:generate
+
+      - name: Create Database
+        working-directory: project
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        working-directory: project
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-clover coverage.xml
+
+      - name: Upload reports to codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
