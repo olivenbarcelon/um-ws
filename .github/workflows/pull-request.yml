@@ -57,7 +57,8 @@ jobs:
         # run: XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=-1 --coverage-clover storage/coverage/coverage.xml
         # run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-html report/
         # run: php artisan test --coverage --coverage-clover storage/coverage/coverage.xml
-        run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-clover storage/coverage/coverage.xml
+        # run: phpdbg -d memory_limit=-1 -qrr ./vendor/bin/phpunit --coverage-clover storage/coverage/coverage.xml
+        run: XDEBUG_MODE=coverage vendor/bin/phpunit -d memory_limit=-1 --coverage-clover coverage.xml
 
       # - name: Upload reports to codecov
       #   run: |
@@ -67,4 +68,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./storage/coverage/coverage.xml
+          files: coverage.xml
