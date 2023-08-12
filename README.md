@@ -1,3 +1,4 @@
+[![GuardRails badge](https://api.guardrails.io/v2/badges/206057?token=fae57e14f5515599caf899247d1b28bda1ce9b7e9614274c55344c38ed066a7f)](https://dashboard.guardrails.io/gh/olivenbarcelon/repos/206057)
 # um-ws
 User Management System
 
