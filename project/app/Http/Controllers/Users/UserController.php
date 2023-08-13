@@ -30,8 +30,6 @@ class UserController extends Controller {
 
     public function index(): JsonResponse {
         $user = User::all();
-        // dd($user)
-        // return User::collection($user);
         return UserResource::collection($user)->response();
     }
 }
