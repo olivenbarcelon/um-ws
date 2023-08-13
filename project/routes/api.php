@@ -21,8 +21,13 @@ use Illuminate\Http\Request;
 Route::group(['prefix' => ''], function ($router) {
     $router->group(['prefix' => 'users', 'namespace' => 'Users'], function () use ($router) {
         $router->post('', [
-            'as' => 'api.users',
+            'as' => 'api.users.store',
             'uses' => 'UserController@store'
+        ]);
+
+        $router->get('', [
+            'as' => 'api.users.index',
+            'uses' => 'UserController@index'
         ]);
     });
 

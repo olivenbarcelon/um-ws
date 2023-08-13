@@ -10,6 +10,10 @@ use App\Http\Resources\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller {
+    /**
+     * @param StoreUserRequest $request
+     * @return JsonResponse
+     */
     public function store(StoreUserRequest $request): JsonResponse {
         $user = User::create([
             'email' => $request->email,
@@ -22,5 +26,10 @@ class UserController extends Controller {
             'created_by' => $request->email
         ]);
         return (new UserResource($user))->response(JsonResponse::HTTP_CREATED);
+    }
+
+    public function index(): JsonResponse {
+        $user = User::all();
+        return UserResource::collection($user)->response();
     }
 }
