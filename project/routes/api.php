@@ -29,6 +29,11 @@ Route::group(['prefix' => ''], function ($router) {
             'as' => 'api.users.index',
             'uses' => 'UserController@index'
         ]);
+
+        $router->get('{uuid}', [
+            'as' => 'api.users.show',
+            'uses' => 'UserController@show'
+        ]);
     });
 
     $router->get('', [

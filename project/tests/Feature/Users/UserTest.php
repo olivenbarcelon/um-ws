@@ -4,6 +4,7 @@ namespace Tests\Feature\Users;
 
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 
 class UserTest extends TestCase {
@@ -40,7 +41,7 @@ class UserTest extends TestCase {
         $data = ['email' => 'invalid_email'];
         $this->post(route('api.users.store'), $data)
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonFragment([
+            ->assertExactJson([
                 'errors' => [
                     'email' => ['Email format is invalid']
                 ]
@@ -58,5 +59,44 @@ class UserTest extends TestCase {
         $this->get(route('api.users.index'))
             ->assertOk()
             ->assertJsonCount(1, 'data');
+    }
+
+    /**
+     * @test
+     * @testdox It should show users
+     * @return void
+     */
+    public function show(): void {
+        $user = factory(User::class)->create();
+        factory(User::class)->create();
+
+        $params = [
+            'uuid' => $user->uuid
+        ];
+        $this->get(route('api.users.show', $params))
+            ->assertOk()
+            ->assertJson([
+                'data' => [
+                    'uuid' => $user->uuid
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @testdox It should show users validate by uuid
+     * @return void
+     */
+    public function showValidateByUuid(): void {
+        $params = [
+            'uuid' => Uuid::uuid4()
+        ];
+        $this->get(route('api.users.show', $params))
+            ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertExactJson([
+                'errors' => [
+                    'uuid' => ['UUID does not exist']
+                ]
+            ]);
     }
 }
