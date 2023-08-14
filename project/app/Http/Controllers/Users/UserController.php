@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Users\ShowUserRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Resources\Resources\UserResource;
@@ -28,8 +29,20 @@ class UserController extends Controller {
         return (new UserResource($user))->response(JsonResponse::HTTP_CREATED);
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function index(): JsonResponse {
         $user = User::all();
         return UserResource::collection($user)->response();
+    }
+
+    /**
+     * @param ShowUserRequest $request
+     * @return JsonResponse
+     */
+    public function show(ShowUserRequest $request): JsonResponse {
+        $user = User::whereUuid($request->uuid)->first();
+        return (new UserResource($user))->response();
     }
 }
