@@ -21,7 +21,6 @@ class CreateUsersTable extends Migration {
             $table->string('last_name')->index();
             $table->string('first_name')->index();
             $table->string('middle_name')->nullable()->index();
-            $table->string('created_by')->index();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
