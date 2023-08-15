@@ -99,4 +99,45 @@ class UserTest extends TestCase {
                 ]
             ]);
     }
+
+    /**
+     * @test
+     * @testdox It should update users
+     * @return void
+     */
+    public function update(): void {
+        $user = factory(User::class)->create();
+
+        $params = [
+            'uuid' => $user->uuid,
+            'last_name' => $this->faker->lastName(),
+            'first_name' => $this->faker->firstName(),
+            'middle_name' => $this->faker->lastName()
+        ];
+        $this->put(route('api.users.update', $params))
+            ->assertOk()
+            ->assertJson([
+                'data' => [
+                    'uuid' => $user->uuid
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @testdox It should update users validate by uuid
+     * @return void
+     */
+    public function updateValidateByUuid(): void {
+        $params = [
+            'uuid' => Uuid::uuid4()
+        ];
+        $this->put(route('api.users.update', $params))
+            ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertExactJson([
+                'errors' => [
+                    'uuid' => ['UUID does not exist']
+                ]
+            ]);
+    }
 }
