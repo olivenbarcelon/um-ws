@@ -18,15 +18,13 @@ use Illuminate\Support\Facades\Hash;
 */
 
 $factory->define(User::class, function (Faker $faker) {
-    $email = $faker->unique()->safeEmail;
     return [
-        'email' => $email,
+        'email' => $faker->unique()->safeEmail,
         'password' => Hash::make('PASSWORD'),
         'mobile_number' => $faker->e164PhoneNumber(),
         'role' => $faker->randomElement(User::ROLE),
         'last_name' => $faker->lastName(),
         'first_name' => $faker->firstName(),
         'remember_token' => Str::random(10),
-        'created_by' => $email
     ];
 });
