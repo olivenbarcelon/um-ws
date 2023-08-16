@@ -39,6 +39,11 @@ Route::group(['prefix' => ''], function ($router) {
             'as' => 'api.users.update',
             'uses' => 'UserController@update'
         ]);
+
+        $router->delete('{uuid}', [
+            'as' => 'api.users.destroy',
+            'uses' => 'UserController@destroy'
+        ]);
     });
 
     $router->get('', [
