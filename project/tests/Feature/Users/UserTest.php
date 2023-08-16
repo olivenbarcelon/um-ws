@@ -41,10 +41,8 @@ class UserTest extends TestCase {
         $data = ['email' => 'invalid_email'];
         $this->post(route('api.users.store'), $data)
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertExactJson([
-                'errors' => [
-                    'email' => ['Email format is invalid']
-                ]
+            ->assertJsonValidationErrors([
+                'email' => 'Email format is invalid'
             ]);
     }
 
@@ -93,10 +91,8 @@ class UserTest extends TestCase {
         ];
         $this->get(route('api.users.show', $params))
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertExactJson([
-                'errors' => [
-                    'uuid' => ['UUID does not exist']
-                ]
+            ->assertJsonValidationErrors([
+                'uuid' => 'UUID does not exist'
             ]);
     }
 
@@ -134,10 +130,43 @@ class UserTest extends TestCase {
         ];
         $this->put(route('api.users.update', $params))
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertExactJson([
-                'errors' => [
-                    'uuid' => ['UUID does not exist']
-                ]
+            ->assertJsonValidationErrors([
+                'uuid' => 'UUID does not exist'
+            ]);
+    }
+
+    /**
+     * @test
+     * @testdox It should delete users
+     * @return void
+     */
+    public function destroy(): void {
+        $user = factory(User::class)->create();
+
+        $params = [
+            'uuid' => $user->uuid
+        ];
+        $this->delete(route('api.users.destroy', $params))
+            ->assertStatus(JsonResponse::HTTP_NO_CONTENT);
+        $this->assertDatabaseMissing(User::RESOURCE_KEY, [
+            'uuid' => $user->uuid,
+            'deleted_at' => null
+        ]);
+    }
+
+    /**
+     * @test
+     * @testdox It should delete users validate by uuid
+     * @return void
+     */
+    public function destroyValidateByUuid(): void {
+        $params = [
+            'uuid' => Uuid::uuid4()
+        ];
+        $this->delete(route('api.users.destroy', $params))
+            ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors([
+                'uuid' => 'UUID does not exist'
             ]);
     }
 }

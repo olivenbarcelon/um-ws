@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Users;
 
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Users\DeleteUserRequest;
 use App\Http\Requests\Users\ShowUserRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Users\StoreUserRequest;
@@ -59,5 +60,15 @@ class UserController extends Controller {
         $user = User::whereUuid($request->uuid)->first();
         $user->update($data);
         return (new UserResource($user))->response();
+    }
+
+    /**
+     * @param DeleteUserRequest $request
+     * @return JsonResponse
+     */
+    public function destroy(DeleteUserRequest $request): JsonResponse {
+        $user = User::whereUuid($request->uuid)->first();
+        $user->delete();
+        return response()->json(null, JsonResponse::HTTP_NO_CONTENT);
     }
 }
