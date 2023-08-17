@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Users;
 
-use App\Models\User;
-use Illuminate\Http\JsonResponse;
-use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Http\JsonResponse;
 
 class UserTest extends TestCase {
     /**
@@ -19,14 +19,15 @@ class UserTest extends TestCase {
         $data = [
             'email' => $email,
             'mobile_number' => '639123456789',
+            'password' => $email,
             'role' => 'user',
             'last_name' => $this->faker->lastName(),
             'first_name' => $this->faker->firstName()
         ];
-        $this->post(route('api.users.store'), $data)
+        $this->post(route('api.users.store'), $data, $this->auth())
             ->assertStatus(JsonResponse::HTTP_CREATED)
-            ->assertJson(['data' => collect($data)->toArray()]);
-        $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->toArray());
+            ->assertJson(['data' => collect($data)->except('password')->toArray()]);
+        $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->except('password')->toArray());
     }
 
     /**
@@ -36,7 +37,7 @@ class UserTest extends TestCase {
      */
     public function storeValidateByEmail(): void {
         $data = ['email' => 'invalid_email'];
-        $this->post(route('api.users.store'), $data)
+        $this->post(route('api.users.store'), $data, $this->auth())
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['email' => 'Email format is invalid']);
     }
@@ -47,9 +48,9 @@ class UserTest extends TestCase {
      * @return void
      */
     public function index(): void {
-        factory(User::class)->create();
+        $user = factory(User::class)->create();
 
-        $this->get(route('api.users.index'))
+        $this->get(route('api.users.index'), $this->auth($user))
             ->assertOk()
             ->assertJsonCount(1, 'data');
     }
@@ -66,7 +67,7 @@ class UserTest extends TestCase {
         $params = [
             'uuid' => $user->uuid
         ];
-        $this->get(route('api.users.show', $params))
+        $this->get(route('api.users.show', $params), $this->auth())
             ->assertOk()
             ->assertJson(['data' => collect($params)->toArray()]);
     }
@@ -80,7 +81,7 @@ class UserTest extends TestCase {
         $params = [
             'uuid' => Uuid::uuid4()
         ];
-        $this->get(route('api.users.show', $params))
+        $this->get(route('api.users.show', $params), $this->auth())
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
     }
@@ -101,7 +102,7 @@ class UserTest extends TestCase {
             'first_name' => $this->faker->firstName(),
             'middle_name' => $this->faker->lastName()
         ];
-        $this->put(route('api.users.update', $params), $data)
+        $this->put(route('api.users.update', $params), $data, $this->auth())
             ->assertOk()
             ->assertJson(['data' => collect($params)->merge($data)->toArray()]);
         $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->toArray());
@@ -116,7 +117,7 @@ class UserTest extends TestCase {
         $params = [
             'uuid' => Uuid::uuid4()
         ];
-        $this->put(route('api.users.update', $params))
+        $this->put(route('api.users.update', $params), [], $this->auth())
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
     }
@@ -132,7 +133,7 @@ class UserTest extends TestCase {
         $params = [
             'uuid' => $user->uuid
         ];
-        $this->delete(route('api.users.destroy', $params))
+        $this->delete(route('api.users.destroy', $params), [], $this->auth())
             ->assertStatus(JsonResponse::HTTP_NO_CONTENT);
         $this->assertDatabaseMissing(User::RESOURCE_KEY, collect($params)->merge(['deleted_at' => null])->toArray());
     }
@@ -146,8 +147,81 @@ class UserTest extends TestCase {
         $params = [
             'uuid' => Uuid::uuid4()
         ];
-        $this->delete(route('api.users.destroy', $params))
+        $this->delete(route('api.users.destroy', $params), [], $this->auth())
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
+    }
+
+    /**
+     * @test
+     * @testdox It should login users
+     * @return void
+     */
+    public function login(): void {
+        $email = $this->faker->unique()->safeEmail;
+        $password = $this->faker->regexify('[A-Z]{5}[0-4]{3}');
+        factory(User::class)->create([
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        $data = [
+            'email' => $email,
+            'password' => $password
+        ];
+        $this->post(route('api.users.login'), $data)
+            ->assertOk()
+            ->assertJsonStructure([
+                'data',
+                'token'
+            ])
+            ->assertJson(['data' => collect($data)->except('password')->toArray()]);
+    }
+
+    /**
+     * @test
+     * @testdox It should login users validate by email
+     * @return void
+     */
+    public function loginValidateByEmail(): void {
+        $data = [
+            'password' => $this->faker->regexify('[A-Z]{5}[0-4]{3}')
+        ];
+        $this->post(route('api.users.login'), $data)
+            ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(['email' => 'Email is required']);
+    }
+
+    /**
+     * @test
+     * @testdox It should login users unauthorized
+     * @return void
+     */
+    public function loginUnauthorized(): void {
+        $email = factory(User::class)->create()->email;
+
+        $data = [
+            'email' => $email,
+            'password' => $this->faker->regexify('[A-Z]{5}[0-4]{3}')
+        ];
+        $this->post(route('api.users.login'), $data)
+            ->assertUnauthorized()
+            ->assertJsonStructure([
+                'code',
+                'error',
+                'message',
+                'description'
+            ]);
+    }
+
+    /**
+     * @test
+     * @testdox It should logout users
+     * @return void
+     */
+    public function logout(): void {
+        $this->post(route('api.users.logout'), [], $this->auth())
+            ->assertOk()
+            ->assertJson(['message' => 'User has successfully logged out']);
     }
 }

@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Users;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Users\DeleteUserRequest;
+use App\Exceptions\UnauthorizedException;
 use App\Http\Requests\Users\ShowUserRequest;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Users\LoginUserRequest;
 use App\Http\Requests\Users\StoreUserRequest;
+use App\Http\Requests\Users\DeleteUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Resources\Resources\UserResource;
-use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller {
     /**
@@ -20,8 +21,8 @@ class UserController extends Controller {
     public function store(StoreUserRequest $request): JsonResponse {
         $user = User::create([
             'email' => $request->email,
-            'password' => Hash::make($request->email),
             'mobile_number' => $request->mobile_number,
+            'password' => $request->password,
             'role' => $request->role,
             'last_name' => $request->last_name,
             'first_name' => $request->first_name,
@@ -70,5 +71,30 @@ class UserController extends Controller {
         $user = User::whereUuid($request->uuid)->first();
         $user->delete();
         return response()->json(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param LoginUserRequest $request
+     * @return JsonResponse
+     */
+    public function login(LoginUserRequest $request): JsonResponse {
+        $credentials = $request->only(['email', 'password']);
+        if(!$token = auth()->attempt($credentials)) {
+            throw new UnauthorizedException();
+        }
+
+        return response()->json([
+            'data' => auth()->user(),
+            'token' => $token
+        ]);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function logout(): JsonResponse {
+        auth()->logout();
+
+        return response()->json(['message' => 'User has successfully logged out']);
     }
 }
