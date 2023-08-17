@@ -25,11 +25,7 @@ class UserTest extends TestCase {
         ];
         $this->post(route('api.users.store'), $data)
             ->assertStatus(JsonResponse::HTTP_CREATED)
-            ->assertJson([
-                'data' => [
-                    'email' => $email
-                ]
-            ]);
+            ->assertJson(['data' => collect($data)->toArray()]);
         $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->toArray());
     }
 
@@ -42,9 +38,7 @@ class UserTest extends TestCase {
         $data = ['email' => 'invalid_email'];
         $this->post(route('api.users.store'), $data)
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors([
-                'email' => 'Email format is invalid'
-            ]);
+            ->assertJsonValidationErrors(['email' => 'Email format is invalid']);
     }
 
     /**
@@ -74,9 +68,7 @@ class UserTest extends TestCase {
         ];
         $this->get(route('api.users.show', $params))
             ->assertOk()
-            ->assertJson([
-                'data' => collect($params)->toArray()
-            ]);
+            ->assertJson(['data' => collect($params)->toArray()]);
     }
 
     /**
@@ -90,9 +82,7 @@ class UserTest extends TestCase {
         ];
         $this->get(route('api.users.show', $params))
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors([
-                'uuid' => 'UUID does not exist'
-            ]);
+            ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
     }
 
     /**
@@ -113,11 +103,7 @@ class UserTest extends TestCase {
         ];
         $this->put(route('api.users.update', $params), $data)
             ->assertOk()
-            ->assertJson([
-                'data' => [
-                    'uuid' => $user->uuid
-                ]
-            ]);
+            ->assertJson(['data' => collect($params)->merge($data)->toArray()]);
         $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->toArray());
     }
 
@@ -132,9 +118,7 @@ class UserTest extends TestCase {
         ];
         $this->put(route('api.users.update', $params))
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors([
-                'uuid' => 'UUID does not exist'
-            ]);
+            ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
     }
 
     /**
@@ -164,8 +148,6 @@ class UserTest extends TestCase {
         ];
         $this->delete(route('api.users.destroy', $params))
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors([
-                'uuid' => 'UUID does not exist'
-            ]);
+            ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
     }
 }
