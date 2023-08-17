@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests\Users;
 
+use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use App\Models\User;
 
-class DeleteUserRequest extends FormRequest {
+class LoginUserRequest extends FormRequest {
     /**
      * Determine if the user is authorized to make this request.
      * @return bool
@@ -24,10 +24,13 @@ class DeleteUserRequest extends FormRequest {
      */
     public function rules() {
         return [
-            'uuid' => [
+            'email' => [
                 'required',
-                'uuid',
-                Rule::exists(User::RESOURCE_KEY, 'uuid')->whereNull('deleted_at')
+                'regex:/.+@[a-zA-Z]+\.\S{3}/',
+                Rule::exists(User::RESOURCE_KEY, 'email')->whereNull('deleted_at')
+            ],
+            'password' => [
+                'required'
             ]
         ];
     }
@@ -37,17 +40,11 @@ class DeleteUserRequest extends FormRequest {
      */
     public function messages() {
         return [
-            'uuid.required' => 'UUID is required',
-            'uuid.uuid' => 'UUID must be a valid UUID',
-            'uuid.exists' => 'UUID does not exist'
+            'email.required' => 'Email is required',
+            'email.regex' => 'Email format is invalid',
+            'email.exists' => 'Email does not exist',
+            'password.required' => 'Password is required'
         ];
-    }
-
-    /**
-     * @return void
-     */
-    protected function prepareForValidation() {
-        $this->merge(['uuid' => $this->route('uuid')]);
     }
 
     /**
