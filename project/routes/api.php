@@ -20,29 +20,41 @@ use Illuminate\Http\Request;
 
 Route::group(['prefix' => ''], function ($router) {
     $router->group(['prefix' => 'users', 'namespace' => 'Users'], function () use ($router) {
-        $router->post('', [
-            'as' => 'api.users.store',
-            'uses' => 'UserController@store'
-        ]);
+        $router->group(['middleware' => 'auth'], function () use ($router) {
+            $router->post('', [
+                'as' => 'api.users.store',
+                'uses' => 'UserController@store'
+            ]);
+    
+            $router->get('', [
+                'as' => 'api.users.index',
+                'uses' => 'UserController@index'
+            ]);
+    
+            $router->get('{uuid}', [
+                'as' => 'api.users.show',
+                'uses' => 'UserController@show'
+            ]);
+    
+            $router->put('{uuid}', [
+                'as' => 'api.users.update',
+                'uses' => 'UserController@update'
+            ]);
+    
+            $router->delete('{uuid}', [
+                'as' => 'api.users.destroy',
+                'uses' => 'UserController@destroy'
+            ]);
 
-        $router->get('', [
-            'as' => 'api.users.index',
-            'uses' => 'UserController@index'
-        ]);
+            $router->post('logout', [
+                'as' => 'api.users.logout',
+                'uses' => 'UserController@logout'
+            ]);
+        });
 
-        $router->get('{uuid}', [
-            'as' => 'api.users.show',
-            'uses' => 'UserController@show'
-        ]);
-
-        $router->put('{uuid}', [
-            'as' => 'api.users.update',
-            'uses' => 'UserController@update'
-        ]);
-
-        $router->delete('{uuid}', [
-            'as' => 'api.users.destroy',
-            'uses' => 'UserController@destroy'
+        $router->post('login', [
+            'as' => 'api.users.login',
+            'uses' => 'UserController@login'
         ]);
     });
 

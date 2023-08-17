@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
 use App\Helpers\GeneralHelper;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
-class User extends Authenticatable {
+class User extends Authenticatable implements JWTSubject {
     use Notifiable, SoftDeletes;
 
     public const RESOURCE_KEY = 'users';
@@ -55,5 +57,29 @@ class User extends Authenticatable {
                 $model->id_number = GeneralHelper::generateId();
             }
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function getJWTIdentifier() {
+        return $this->getKey();
+    }
+
+    /**
+     * @return array
+     */
+    public function getJWTCustomClaims(): array {
+        return [
+            'email' => $this->email
+        ];
+    }
+
+    /**
+     * @param string $value
+     * @return void
+     */
+    public function setPasswordAttribute(string $value): void {
+        $this->attributes['password'] = Hash::make($value);
     }
 }

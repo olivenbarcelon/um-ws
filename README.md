@@ -6,6 +6,11 @@ User Management System
 **Setup Project**
 * composer create-project --prefer-dist laravel/laravel:^5.0 project
 
+**Dependencies**
+* composer require tymon/jwt-auth:^1.0
+    * php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
+    * php artisan jwt:secret
+
 **Artisan Command**
 * To make the changed in .env work
     * php artisan config:cache
