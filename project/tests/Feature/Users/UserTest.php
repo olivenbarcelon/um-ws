@@ -30,6 +30,7 @@ class UserTest extends TestCase {
                     'email' => $email
                 ]
             ]);
+        $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->toArray());
     }
 
     /**
@@ -74,9 +75,7 @@ class UserTest extends TestCase {
         $this->get(route('api.users.show', $params))
             ->assertOk()
             ->assertJson([
-                'data' => [
-                    'uuid' => $user->uuid
-                ]
+                'data' => collect($params)->toArray()
             ]);
     }
 
@@ -105,18 +104,21 @@ class UserTest extends TestCase {
         $user = factory(User::class)->create();
 
         $params = [
-            'uuid' => $user->uuid,
+            'uuid' => $user->uuid
+        ];
+        $data  = [
             'last_name' => $this->faker->lastName(),
             'first_name' => $this->faker->firstName(),
             'middle_name' => $this->faker->lastName()
         ];
-        $this->put(route('api.users.update', $params))
+        $this->put(route('api.users.update', $params), $data)
             ->assertOk()
             ->assertJson([
                 'data' => [
                     'uuid' => $user->uuid
                 ]
             ]);
+        $this->assertDatabaseHas(User::RESOURCE_KEY, collect($data)->toArray());
     }
 
     /**
@@ -148,10 +150,7 @@ class UserTest extends TestCase {
         ];
         $this->delete(route('api.users.destroy', $params))
             ->assertStatus(JsonResponse::HTTP_NO_CONTENT);
-        $this->assertDatabaseMissing(User::RESOURCE_KEY, [
-            'uuid' => $user->uuid,
-            'deleted_at' => null
-        ]);
+        $this->assertDatabaseMissing(User::RESOURCE_KEY, collect($params)->merge(['deleted_at' => null])->toArray());
     }
 
     /**
