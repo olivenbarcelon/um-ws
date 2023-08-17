@@ -29,5 +29,6 @@
         <server name="MAIL_DRIVER" value="array"/>
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
+        <server name="JWT_SECRET" value="N79sFVpkDbfzLHKAJCH0ihV1iKJFS4a52v2zYIr6pPs0aTicO2y4BzDywgV3C4zu"/>
     </php>
 </phpunit>
