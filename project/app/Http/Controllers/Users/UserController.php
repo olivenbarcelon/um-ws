@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Users;
 
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exceptions\UnauthorizedException;
@@ -11,15 +10,25 @@ use App\Http\Requests\Users\LoginUserRequest;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\DeleteUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
-use App\Http\Resources\Resources\UserResource;
+use App\Http\Resources\UserResource;
+use App\Repositories\UserRepository;
 
 class UserController extends Controller {
+    protected $userRepository;
+
+    /**
+     * @param UserRepository $userRepository
+     */
+    public function __construct(UserRepository $userRepository) {
+        $this->userRepository = $userRepository;
+    }
+
     /**
      * @param StoreUserRequest $request
      * @return JsonResponse
      */
     public function store(StoreUserRequest $request): JsonResponse {
-        $user = User::create([
+        $user = $this->userRepository->save([
             'email' => $request->email,
             'mobile_number' => $request->mobile_number,
             'password' => $request->password,
@@ -35,7 +44,7 @@ class UserController extends Controller {
      * @return JsonResponse
      */
     public function index(): JsonResponse {
-        $user = User::all();
+        $user = $this->userRepository->findAll();
         return UserResource::collection($user)->response();
     }
 
@@ -44,7 +53,7 @@ class UserController extends Controller {
      * @return JsonResponse
      */
     public function show(ShowUserRequest $request): JsonResponse {
-        $user = User::whereUuid($request->uuid)->first();
+        $user = $this->userRepository->findByUuid($request->uuid);
         return (new UserResource($user))->response();
     }
 
@@ -53,13 +62,11 @@ class UserController extends Controller {
      * @return JsonResponse
      */
     public function update(UpdateUserRequest $request): JsonResponse {
-        $data = [
+        $user = $this->userRepository->saveByUuid($request->uuid, [
             'last_name' => $request->last_name,
             'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-        ];
-        $user = User::whereUuid($request->uuid)->first();
-        $user->update($data);
+            'middle_name' => $request->middle_name
+        ]);
         return (new UserResource($user))->response();
     }
 
@@ -68,8 +75,7 @@ class UserController extends Controller {
      * @return JsonResponse
      */
     public function destroy(DeleteUserRequest $request): JsonResponse {
-        $user = User::whereUuid($request->uuid)->first();
-        $user->delete();
+        $this->userRepository->delete($request->uuid);
         return response()->json(null, JsonResponse::HTTP_NO_CONTENT);
     }
 

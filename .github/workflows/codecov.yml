@@ -1,8 +1,8 @@
-name: Pull Request Testing
+name: Running Code Coverage
 
 on:
   pull_request:
-    branches: [ master, develop, staging ]
+    branches: [ master, develop ]
 
   workflow_dispatch:
 
