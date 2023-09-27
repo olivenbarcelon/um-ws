@@ -4,13 +4,21 @@
 User Management System
 
 **Setup Project**
-* composer create-project --prefer-dist laravel/laravel:^5.0 project
+<!-- * composer create-project --prefer-dist laravel/laravel:^5.8.* project -->
+* git clone https://github.com/olivenbarcelon/um-ws.git 
+* composer install
 
-**Dependencies**
-* composer require tymon/jwt-auth:^1.0
-    * php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
-    * php artisan jwt:secret
+**Run Project**
+* php artisan serve
 
-**Artisan Command**
-* To make the changed in .env work
-    * php artisan config:cache
+**Run Test**
+* vendor/bin/phpunit
+
+**Developers**
+* **Dependencies**
+    * composer require tymon/jwt-auth:^1.0
+        * php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
+        * php artisan jwt:secret
+* **Artisan Command**
+    * To make the changed in .env work
+        * php artisan config:cache
