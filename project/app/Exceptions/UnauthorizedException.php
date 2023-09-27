@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Http\JsonResponse;
 
 class UnauthorizedException extends Exception {
+
     /**
      * @param string $message
      * @param string $description
