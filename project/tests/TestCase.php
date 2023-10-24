@@ -17,10 +17,10 @@ abstract class TestCase extends BaseTestCase {
      */
     protected function setUp(): void {
         parent::setUp();
-
         $this->faker = Factory::create();
 
         $this->artisan('migrate');
+        // $this->artisan('db:seed');
         $this->beforeApplicationDestroyed(function () {
             $this->artisan('migrate:rollback');
         });
