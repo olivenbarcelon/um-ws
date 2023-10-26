@@ -22,3 +22,7 @@ User Management System
 * **Artisan Command**
     * To make the changed in .env work
         * php artisan config:cache
+    * For Queue
+        * php artisan make:job UserCsvProcess
+        * php artisan queue:table
+        * php artisan queue:work

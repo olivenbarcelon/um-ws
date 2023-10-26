@@ -2,10 +2,14 @@
 
 namespace Tests\Feature\Users;
 
+use App\Jobs\UserCsvProcess;
 use Tests\TestCase;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 
 class UserTest extends TestCase {
     /**
@@ -150,6 +154,49 @@ class UserTest extends TestCase {
         $this->delete(route('api.users.destroy', $params), [], $this->auth())
             ->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['uuid' => 'UUID does not exist']);
+    }
+
+    /**
+     * @test
+     * @testdox It should upload users
+     * @return void
+     */
+    public function upload(): void {
+        Queue::fake();
+        Storage::fake('uploads');
+
+        $header = 'email,mobile_number,password,role,last_name,first_name,middle_name';
+        $row1 = 'Kelton85@hotmail.com,639069208033,P@ssw0rd,admin,Mertz,Geoffrey,';
+        $content = implode("\n", [$header, $row1]);
+        $filePath = '/tmp/users.csv';
+        file_put_contents($filePath, $content);
+
+        $payload = [
+            'file' => new UploadedFile($filePath, 'users.csv', null, null, true)
+        ];
+        $this->post(route('api.users.upload'), $payload, $this->auth())
+            ->assertOk()
+            ->assertJson([
+                'message' => 'Users has successfully uploaded'
+            ]);
+
+        Queue::assertPushed(UserCsvProcess::class, function ($job) {
+            $job->handle();
+            return true;
+        });
+    }
+
+    /**
+     * @test
+     * @testdox It should upload users not acceptable
+     * @return void
+     */
+    public function uploadNotAcceptable(): void {
+        $this->post(route('api.users.upload'), [], $this->auth())
+            ->assertStatus(JsonResponse::HTTP_NOT_ACCEPTABLE)
+            ->assertJson([
+                'message' => 'No file uploaded or invalid file type'
+            ]);
     }
 
     /**
