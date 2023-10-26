@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\Jobs\UserCsvProcess;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Repositories\UserRepository;
 use App\Exceptions\UnauthorizedException;
 use App\Http\Requests\Users\ShowUserRequest;
 use App\Http\Requests\Users\LoginUserRequest;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\DeleteUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
-use App\Http\Resources\UserResource;
-use App\Repositories\UserRepository;
 
 class UserController extends Controller {
     protected $userRepository;
@@ -77,6 +79,33 @@ class UserController extends Controller {
     public function destroy(DeleteUserRequest $request): JsonResponse {
         $this->userRepository->delete($request->uuid);
         return response()->json(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function upload(Request $request): JsonResponse {
+        if($request->has('file')) {
+            $header = [];
+            $data = file($request->file);
+            $chunks = array_chunk($data, 1000);
+            foreach($chunks as $key => $chunk) {
+                $data = array_map('str_getcsv', $chunk);
+                if($key === 0) {
+                    $header = $data[0];
+                    unset($data[0]);
+                }
+                UserCsvProcess::dispatch($data, $header, $this->userRepository);
+            }
+
+            return response()->json([
+                'message' => 'Users has successfully uploaded'
+            ]);
+        }
+        return response()->json([
+            'message' => 'No file uploaded or invalid file type'
+        ], JsonResponse::HTTP_NOT_ACCEPTABLE);
     }
 
     /**
