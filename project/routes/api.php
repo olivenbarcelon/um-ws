@@ -45,6 +45,11 @@ Route::group(['prefix' => ''], function ($router) {
                 'uses' => 'UserController@destroy'
             ]);
 
+            $router->post('upload', [
+                'as' => 'api.users.upload',
+                'uses' => 'UserController@upload'
+            ]);
+
             $router->post('logout', [
                 'as' => 'api.users.logout',
                 'uses' => 'UserController@logout'
