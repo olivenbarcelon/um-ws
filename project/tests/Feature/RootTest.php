@@ -7,11 +7,11 @@ use Tests\TestCase;
 class RootTest extends TestCase {
     /**
      * @test
-     * @testdox It should show application information
+     * @testdox It should show root
      * @return void
      */
-    public function applicationInfo(): void {
-        $this->get(route('information'))
+    public function show(): void {
+        $this->get(route('api'))
             ->assertOk()
             ->assertJsonStructure([
                 'title',
