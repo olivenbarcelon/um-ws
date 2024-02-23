@@ -4,7 +4,7 @@
 User Management System
 
 **Setup Project**
-<!-- * composer create-project --prefer-dist laravel/laravel:^5.8.* project -->
+<!-- * composer create-project --prefer-dist laravel/laravel:^5.8.35 project -->
 * git clone https://github.com/olivenbarcelon/um-ws.git 
 * composer install
 

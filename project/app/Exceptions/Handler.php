@@ -35,7 +35,6 @@ class Handler extends ExceptionHandler {
         // @codeCoverageIgnoreStart
         parent::report($exception);
         // @codeCoverageIgnoreEnd
-
     }
 
     /**
