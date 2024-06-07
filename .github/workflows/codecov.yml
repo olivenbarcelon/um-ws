@@ -27,7 +27,17 @@ jobs:
           cd project
           mvn --batch-mode --update-snapshots verify -Dapplication.properties.path=classpath
 
-      - name: Upload reports to codecov
-        run: |
-          export CODECOV_TOKEN="${{ secrets.CODECOV_TOKEN }}"
-          bash <(curl -s https://codecov.io/bash)
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./target/site/jacoco/
+          fail_ci_if_error: true
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{secrets.CODECOV_TOKEN}}
+          verbose: true
+
+      # - name: Upload reports to codecov
+      #   run: |
+      #     export CODECOV_TOKEN="${{ secrets.CODECOV_TOKEN }}"
+      #     bash <(curl -s https://codecov.io/bash)
