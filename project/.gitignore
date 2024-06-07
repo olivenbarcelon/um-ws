@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 .mvn
 application-dev.properties
+logs/
 
 ### STS ###
 .apt_generated

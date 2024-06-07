@@ -1,5 +1,3 @@
-# FROM maven:3.8.1-openjdk-11-slim as build
-# FROM maven:3.8.6-openjdk-8 as build
 FROM maven:3.8.6-openjdk-8-slim as build
 MAINTAINER Oliven C. Barcelon <olivenbarcelon@gmail.com>
 
@@ -17,8 +15,6 @@ COPY ./project/src src
 RUN mvn package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-# FROM openjdk:11.0.11-slim
-# FROM openjdk:8-jdk-alpine3.7
 FROM openjdk:8-alpine3.7
 ARG DEPENDENCY=/app/target/dependency
 
