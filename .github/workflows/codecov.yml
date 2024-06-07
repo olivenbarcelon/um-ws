@@ -1,3 +1,4 @@
+# Building and testing Java with Maven - https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
 name: Running Code Coverage
 
 on:
@@ -12,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup JDK 8
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'adopt'
