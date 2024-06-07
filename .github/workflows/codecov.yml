@@ -24,7 +24,7 @@ jobs:
       - name: Build with Maven
         run: |
           cd project
-          mvn --batch-mode --update-snapshots verify -Dresources.path=classpath
+          mvn --batch-mode --update-snapshots verify -Dapplication.properties.path=classpath
 
       - name: Upload reports to codecov
         run: |
