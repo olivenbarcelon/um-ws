@@ -11,6 +11,7 @@ User Management System
 
 **Run Spring Application**
 * mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Dapplication.properties.path=classpath -Dspring.profiles.active=dev"
+* mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Dapplication.properties.path=classpath -Dspring.profiles.active=dev -Dlog4j2.configurationFile=file:/Users/olie/logs/log4j2.properties"
 
 **Run Maven Test**
 * mvn test -Dapplication.properties.path=classpath -Dspring.profiles.active=dev
