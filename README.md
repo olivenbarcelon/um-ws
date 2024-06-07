@@ -3,26 +3,16 @@
 # um-ws
 User Management System
 
-**Setup Project**
-<!-- * composer create-project --prefer-dist laravel/laravel:^5.8.* project -->
-* git clone https://github.com/olivenbarcelon/um-ws.git 
-* composer install
+**Setup Repository**
+* git clone https://github.com/olivenbarcelon/um-ws.git
 
-**Run Project**
-* php artisan serve
+**Setup Spring Application**
+* spring init --build=maven --java-version=8 --dependencies=web --packaging=jar --groupId=io.github.olivenbarcelon --artifactId=um-ws --package-name=io.github.olivenbarcelon.umws -n=um-ws --description="User Management System" project --force
 
-**Run Test**
-* vendor/bin/phpunit
+**Run Spring Application**
+* mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Dapplication.properties.path=classpath -Dspring.profiles.active=dev"
 
-**Developers**
-* **Dependencies**
-    * composer require tymon/jwt-auth:^1.0
-        * php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
-        * php artisan jwt:secret
-* **Artisan Command**
-    * To make the changed in .env work
-        * php artisan config:cache
-    * For Queue
-        * php artisan make:job UserCsvProcess
-        * php artisan queue:table
-        * php artisan queue:work
+**Run Maven Test**
+* mvn test -Dapplication.properties.path=classpath -Dspring.profiles.active=dev
+* mvn test -Dapplication.properties.path=classpath -Dspring.profiles.active=dev -Dtest=UmWsApplicationTests#contextLoads
+* mvn --batch-mode --update-snapshots verify -Dapplication.properties.path=classpath -Dspring.profiles.active=dev
