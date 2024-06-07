@@ -30,7 +30,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          directory: ./target/site/jacoco/
+          directory: ./project/target/site/jacoco/
           fail_ci_if_error: true
           flags: unittests
           name: codecov-umbrella
